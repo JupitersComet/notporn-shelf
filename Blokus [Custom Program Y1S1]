@@ -1,0 +1,407 @@
+/*Vivien Chiew Chow Mann*/
+
+/*Credits to Sharon, Jason Mr Sim, Church and Eshan*/ 
+
+
+#include <stdio.h>
+#include <conio.h>
+/*Array and name size*/
+#define ARRAY_SIZE 6
+#define NAME_SIZE 20
+
+/*Game state*/
+#define RUNNING 1
+#define STOP 120
+
+/*Define player movements*/
+#define UL 113
+#define UR 101
+#define DL 97
+#define DR 100
+
+
+#define PLACE 115
+#define PLAYER_SIZE 4
+#define RESTART 96
+#define REDO 116
+#define SKIP 122
+
+
+
+void toreboard(char board[ARRAY_SIZE][ARRAY_SIZE], char reboard[ARRAY_SIZE][ARRAY_SIZE])
+{
+int x, y;
+	for (x=0; x<ARRAY_SIZE; x++) 
+	{
+	   for(y=0; y<ARRAY_SIZE; y++) 
+	   {
+
+		board[y][x]=reboard[y][x];
+		}
+	}
+}
+
+void reload_reboard(char board[ARRAY_SIZE][ARRAY_SIZE], char reboard[ARRAY_SIZE][ARRAY_SIZE])
+{
+int x, y;
+	for (x=0; x<ARRAY_SIZE; x++) 
+	{
+	   for(y=0; y<ARRAY_SIZE; y++) 
+	   {
+
+		reboard[y][x]=board[y][x];
+		}
+	}
+}
+
+/*Selecting player tokens*/
+void set_tokens(char tokens[PLAYER_SIZE])
+{
+
+	int i = 0;
+	
+	char user_input;
+	
+	for (i = 0; i < PLAYER_SIZE; i++)
+		{
+			printf("Player[%d] - Please Select Token : \n", i + 1);
+			
+			user_input = getchar();
+			
+			getchar();
+			
+			tokens[i] = user_input;
+			
+		
+		}
+}
+
+
+/*Blank fresh board set up*/
+void setup(char board[ARRAY_SIZE][ARRAY_SIZE],
+			char reboard[ARRAY_SIZE][ARRAY_SIZE],
+           int selected_x[PLAYER_SIZE],
+           int selected_y[PLAYER_SIZE],
+           char tokens[PLAYER_SIZE],
+           int * selected_p,
+           char p1[PLAYER_SIZE][NAME_SIZE])
+{
+	int y, x, i;
+	char user_input;
+	for (y = 0; y < ARRAY_SIZE; y++)
+		{
+			for (x = 0; x < ARRAY_SIZE; x++)
+				{
+					board[y][x] = ' ';
+				}
+		}
+	selected_x[0] = 0;
+	selected_y[0] = 0;
+	
+	selected_x[2] = ARRAY_SIZE - 1;
+	selected_y[2] = 0;
+	
+	selected_x[1] = 0;
+	selected_y[1] = ARRAY_SIZE - 1;
+	
+	selected_x[3] = ARRAY_SIZE - 1;
+	selected_y[3] = ARRAY_SIZE - 1;
+	set_tokens(tokens);
+	board[0][0]=tokens[0];
+	
+	board[ARRAY_SIZE-1][0]=tokens[1];
+	
+	board[0][ARRAY_SIZE-1]=tokens[2];
+	
+	board[ARRAY_SIZE-1][ARRAY_SIZE-1]=tokens[3];
+	
+}
+/*Print board*/
+void display(char board[ARRAY_SIZE][ARRAY_SIZE], 
+				int selected_x[PLAYER_SIZE], 
+				int selected_y[PLAYER_SIZE], 
+				char tokens[PLAYER_SIZE], 
+				int * selected_p,
+				char p1[PLAYER_SIZE][NAME_SIZE])
+{
+	int y, x;
+
+	for (y = 0; y < ARRAY_SIZE; y++)
+		{
+			for (x = 0; x < ARRAY_SIZE; x++)
+				{
+					if (x == selected_x[*selected_p] && y == selected_y[*selected_p])
+						printf("|[%c]", board[y][x]);
+					else
+						printf("| %c ", board[y][x]);
+				}
+			printf("|\n" );
+		}
+}
+
+
+
+/*Get player input on placing tokens and directions*/
+int get_input(int * selected_p)
+{
+	char user_input = '.';
+	
+	printf("Player[%d] - Please enter a direction to go:\n", *selected_p + 1);
+					printf("\nControls: \n");
+					printf("\nUp Left:'Q'\n"); 
+					printf("\nUp Right: 'E'\n");
+					printf("\nDown Left: A'\n");
+					printf("\nDown Right:D'\n");
+					printf("\n[Place Token:%d]/ [Skip: Z]/ [RESTART: R] /[REDO: T]\ [Quit: X]\n");
+	user_input = getch();
+	return user_input;
+}
+
+
+/*player token moves*/
+int move(
+    char board[ARRAY_SIZE][ARRAY_SIZE],
+	char reboard[ARRAY_SIZE][ARRAY_SIZE],
+    int direction, 
+	int selected_x[PLAYER_SIZE],
+    int selected_y[PLAYER_SIZE],
+    char tokens[PLAYER_SIZE],
+    int selected_p,
+    char p1[PLAYER_SIZE][NAME_SIZE])
+{
+	if (direction == UL)
+		{
+			if (selected_y[selected_p] > 0 && selected_x[selected_p] > 0)
+				{
+					selected_y[selected_p]--;
+					selected_x[selected_p]--;
+				}
+		}
+	else if (direction == UR)
+		{
+			if (selected_y[selected_p] > 0 && selected_x[selected_p] < ARRAY_SIZE - 1)
+				{
+					selected_y[selected_p]--;
+					selected_x[selected_p]++;
+				}
+		}
+	else if (direction == DL)
+		{
+			if (selected_y[selected_p] < ARRAY_SIZE - 1 && selected_x[selected_p] > 0)
+				{
+					selected_y[selected_p]++;
+					selected_x[selected_p]--;
+				}
+		}
+	else if (direction == DR)
+		{
+			if (selected_y[selected_p] < ARRAY_SIZE - 1 && selected_x[selected_p] < ARRAY_SIZE - 1)
+				{
+					selected_y[selected_p]++;
+					selected_x[selected_p]++;
+				}
+		}
+
+
+	else if (direction == PLACE)
+		{
+			reload_reboard(board, reboard);
+			if (board[selected_y[selected_p]][selected_x[selected_p]] == ' ')
+				{
+				
+board[selected_y[selected_p]][selected_x[selected_p]] = tokens[selected_p];
+					
+					selected_p++;
+					
+					if (selected_p == PLAYER_SIZE) selected_p = 0;
+				}
+		}
+	else if(direction == SKIP){
+		selected_p++;
+		if (selected_p == PLAYER_SIZE) selected_p = 0;
+	}
+	
+	else if(direction == REDO)
+	{
+		selected_p--;
+		toreboard(board, reboard);	  
+	}
+	
+	else if(direction == RESTART){
+		setup(board, reboard, selected_x, selected_y, tokens, &selected_p, p1);
+	}
+		return selected_p;
+}
+
+/*Calculate Total Player Score*/
+void calculate_score(char board[ARRAY_SIZE][ARRAY_SIZE], char tokens[PLAYER_SIZE])
+{
+	int x, y; 
+	
+	int score0=0;
+	int score1=0;
+	int score2=0;
+	int score3=0;
+	
+	
+	
+	for(y=0; y<ARRAY_SIZE; y++)
+	{
+		for(x=0; x<ARRAY_SIZE; x++) 
+		{
+		
+			if (board[y][x] == tokens[0])
+				score0++;
+				
+			if (board[y][x] == tokens[1])
+				score1++;
+				
+			if (board[y][x] == tokens[2])
+				score2++;
+				
+			if (board[y][x] == tokens[3])
+				score3++; 
+		}
+		
+	}	printf("\nPlayer 1 Token %i: \n", score0);
+		printf("Player 2 Token %i: \n", score1);
+		printf("Player 3 Token %i: \n", score2); 
+		printf("Player 4 Token %i: \n", score3);
+		
+}
+	
+int game_end(char board[ARRAY_SIZE][ARRAY_SIZE])
+{
+	int x, y;
+	
+	for (y=0; y<ARRAY_SIZE; y++)
+		for (x=0; x<ARRAY_SIZE; x++)
+		{
+			if ( board[y][x] == ' ')
+			{
+				return RUNNING;
+			}
+		
+		} 
+			return STOP;
+
+}
+void store_scores(char board[ARRAY_SIZE][ARRAY_SIZE], char tokens[PLAYER_SIZE]){
+	FILE * f;
+	const char * filename = "blokus.txt";
+	int i;
+	int x, y; 
+	
+	int score0=0;
+	int score1=0;
+	int score2=0;
+	int score3=0;
+	
+	
+
+
+
+
+
+
+	
+	for(y=0; y<ARRAY_SIZE; y++)
+	{
+		for(x=0; x<ARRAY_SIZE; x++) 
+		{
+		
+			if (board[y][x] == tokens[0])
+				score0++;
+				
+			if (board[y][x] == tokens[1])
+				score1++;
+				
+			if (board[y][x] == tokens[2])
+				score2++;
+				
+			if (board[y][x] == tokens[3])
+				score3++; 
+		}
+		
+	}
+	
+	f = fopen(filename, "w");
+	fprintf(f,"Player 1 Token %i: \n", score0);
+	fprintf(f,"Player 2 Token %i: \n", score1);
+	fprintf(f,"Player 3 Token %i: \n", score2); 
+	fprintf(f,"Player 4 Token %i: \n", score3);
+	fclose(f);
+}
+void previous_score(){
+	FILE * f;
+	const char * filename = "blokus.txt";
+	const char line[100];
+	f = fopen(filename, "r");
+	
+	while(fscanf(f, "%[^\n]\n", line)!=EOF){
+		printf("\t%s\n", line);
+	}
+	fclose(f);
+	system("PAUSE");
+	system("cls");
+}
+/*Game runs until user stops; loop*/
+int loop(char board[ARRAY_SIZE][ARRAY_SIZE],
+		 char reboard[ARRAY_SIZE][ARRAY_SIZE],
+         int selected_x[PLAYER_SIZE],
+         int selected_y[PLAYER_SIZE],
+         char tokens[PLAYER_SIZE],
+         int * selected_p,
+         char p1[PLAYER_SIZE][NAME_SIZE])
+
+
+		 
+{
+
+	int state = RUNNING;
+	while (state != STOP)
+		{
+			state = get_input(selected_p);
+			if (state != STOP)
+				{	
+	*selected_p = move(board, reboard, state, selected_x, selected_y, tokens, *selected_p, p1);
+				display(board, selected_x, selected_y, tokens, selected_p, p1);
+					calculate_score(board, tokens);
+					
+					if(game_end(board) == STOP){
+						system("CLS");
+						printf("---SCORE---");
+						calculate_score(board, tokens);
+						system("PAUSE");
+						store_scores(board, tokens);
+						return 0;
+					}
+				}
+		}
+}
+
+/*display all board setup*/
+int main()
+{
+	int x, y;
+
+	int selected_x[PLAYER_SIZE];
+	int selected_y[PLAYER_SIZE];
+	char tokens[PLAYER_SIZE];
+	int selected_p = 0;
+	char p1[PLAYER_SIZE][NAME_SIZE];
+	char board[ARRAY_SIZE][ARRAY_SIZE];
+
+
+	char reboard[ARRAY_SIZE][ARRAY_SIZE];
+
+	
+	printf("################## BLOKUS ################\n");
+	previous_score();
+	
+	setup(board, reboard, selected_x, selected_y, tokens, &selected_p, p1);
+	display(board, selected_x, selected_y, tokens, &selected_p, p1);
+	loop(board, reboard, selected_x, selected_y, tokens, &selected_p, p1);
+	
+}
+
